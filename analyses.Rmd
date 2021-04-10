@@ -1,0 +1,121 @@
+---
+title: "Final Project - Threading Videos on Youtube"
+author: "Tiago de Lima"
+date: "07/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Analyses over the threading Videos on youtube {.tabset}
+
+
+### Synopsis
+
+Youtube platform became a way where many people can express the toughs and share
+their ideas. 
+Also, major content producers such as singers, movies and other Youtube creators 
+share their work to reach a specific kind of audience.
+Therefore, it is significant to analyze the characteristics of the threading videos 
+on Youtube. 
+It provides insights about the main characteristic of threading contents and 
+what lead them to the threading topics.
+
+The first step will be to concentrate the efforts analyzing the of the  the videos. 
+Afterward, tags used in the top videos and the categories their belong to.
+The data analyzed in this report will be the threading videos from FR, DE, CA, US and 
+GB. Each video is identified by an id and characteristic evaluated are:
+
+  "video_id"      "views"         "likes"         "dislikes"      "title"        
+  "category_id"   "tags"          "comment_count" "channel_title" "country"
+
+
+The approach will be to select the most commented, viewed and liked videos individually. 
+Afterward, it will analyzed the most used tags and channels used specifically.
+Analyzing the similar characteristics such as views, likes and etc.
+Further, the same analyses will be investigating the most popular channel in each
+counttry.
+
+
+The analysis of this report will help investigate the most threading Youtube channels 
+in FR, DE, CA, US and GB and in general. 
+It will aid the videos creators to analyses which are their competitors and what 
+are the most popular categories of content to be dedicated.
+
+
+### Required Packages
+
+Since we are dealing with a massive amount of data, the following packages provides 
+as higher performance implementation of function to transform, modify data within the 
+datasets. Further, they provide pipelines to make possible gather information and summarize them quickly.
+
+```{r warning = FALSE, message = FALSE}
+library(tidyr)
+library(dplyr)
+library(DT) ## Output data in nice format # From one of the final project suggested 
+                                          # as guideline
+```
+
+
+
+
+### Data Preprocessing
+
+The original data comes from Youtube after months of analyzes of the threading videos.
+The original dataset includes data from Data is included for the US, GB, DE, CA, and FR regions (USA, Great Britain, Germany, Canada, and France, respectively) and from  RU, MX, KR, JP and IN regions (Russia, Mexico, South Korea, Japan and India respectively).
+The subset of dataset used includes only the first set of regions US, GB, DE, CA, and FR.
+Those countries are more related to each other in terms of culture, providing a fairer comparison. The link to the dataset is: https://www.kaggle.com/datasnaek/youtube-new .
+
+**The following data pre processing is valid for each dataset individually:**
+
+First of all, it was excluded from the list videos which were deleted for any reason.
+Secondly, all videos were group by the column "video_id" and all the numeric data such as views, likes were summed up. After, the country is added to the dataframe.
+
+
+```{r}
+process_df <- function(df, country_flag){
+  
+df <- df %>% filter(video_error_or_removed=="False") %>% group_by(video_id) %>% summarise(
+    views = sum(views, na.rm = T),
+    likes = sum(likes, na.rm = T),
+    dislikes = sum(dislikes, na.rm = T),
+    title = unique(title),
+    category_id=unique(category_id),
+    tags = tags[1],
+    comment_count = sum(comment_count, na.rm = T),
+    channel_title = channel_title[1]
+  ) 
+  df$country <-sapply(c(country_flag), function (x) rep(x, nrow(df)))
+  return(df)
+  
+}
+```
+
+
+
+Finally, all dataframes are joined in a unique dataset and it is exported as a .csv file.
+
+```
+multiFull <- merge(merge(merge(merge(
+  DEvideos,
+  USvideos, all = TRUE),
+  GBvideos, all = TRUE),
+  FRvideos, all = TRUE),
+  CAvideos, all = TRUE)
+
+write.csv(multiFull,"youtube_data.csv", row.names = FALSE)
+```
+Dataset ordered by the number of views, likes and comments_counts
+
+```{r echo=F}
+
+youtube_data <- read.csv("datasets/youtube_data.csv")
+
+youtube_data <- youtube_data[order(youtube_data$views, 
+                                   youtube_data$likes,
+                                   youtube_data$comment_count, 
+                                   decreasing = T),]
+datatable(youtube_data)
+```
