@@ -22,24 +22,24 @@ process_df <- function(df, country_flag){
   
 }
 
-DEvideos <- read.csv('DEvideos.csv')
+DEvideos <- read.csv('datasets/DEvideos.csv')
 DEvideos <- process_df(DEvideos, "DE")
 nrow(DEvideos)
 
-CAvideos <- read.csv('CAvideos.csv')
+CAvideos <- read.csv('datasets/CAvideos.csv')
 CAvideos <- process_df(CAvideos, "CA")
 nrow(CAvideos)
 
 
-FRvideos <- read.csv('FRvideos.csv')
+FRvideos <- read.csv('datasets/FRvideos.csv')
 FRvideos <- process_df(FRvideos, "FR")
 nrow(FRvideos)
 
-GBvideos <- read.csv('GBvideos.csv')
+GBvideos <- read.csv('datasets/GBvideos.csv')
 GBvideos <- process_df(GBvideos, "GB")
 nrow(GBvideos)
 
-USvideos <- read.csv('USvideos.csv')
+USvideos <- read.csv('datasets/USvideos.csv')
 USvideos <- process_df(USvideos, "US")
 nrow(USvideos)
 
@@ -52,11 +52,11 @@ multiFull <- merge(merge(merge(merge(
   FRvideos, all = TRUE),
   CAvideos, all = TRUE)
 
-write.csv(multiFull,"youtube_data.csv", row.names = FALSE)
+write.csv(multiFull,"datasets/youtube_data.csv", row.names = FALSE)
 colnames(multiFull)
 View(multiFull)
 unique(multiFull$country)
-write.csv(multiFull,"youtube_data.csv", row.names = FALSE)
+write.csv(multiFull,"datasets/youtube_data.csv", row.names = FALSE)
 
 
 countries <- c("FR", "CA", "GB", "US", "DE")
@@ -329,51 +329,3 @@ wordcloud(corpus,
           rot.per=0.40, 
           
           colors=brewer.pal(8,"Dark2"))
-install.packages("keras")
-library("kernlab") 
-library("caret") 
-library("tm") 
-library("dplyr") 
-library("splitstackshape")
-library("e1071")
-library(keras)
-library(dplyr)
-library(ggplot2)
-library(purrr)
-library('SparseM');
-library('tm');
-library(stringi)
-install.packages("SnowballC")
-library(SnowballC)
-
-install.packages("join")
-head(by_channel[, "tags"])
-
-prep <- function(tags){
-  
-  return(stri_join_list(strsplit(as.character(tags), "\\|"), sep = " "))
-}
-head(by_channel[, "tags"])
-
-text <- sapply(by_channel[, "tags"],FUN = prep)
-head(text)
-labels <- by_channel[, "category_id"]
-
-trainvector <- as.vector(text[c(1:6000)])
-trainLabels <- as.vector(labels[c(1:6000)])
-
-
-
-trainvector %>% 
-  strsplit(" ") %>% 
-  sapply(length) %>% 
-  summary()
-
-num_words <- 10000
-max_length <- 50
-text_vectorization <- layer_text_vectorization(
-  max_tokens = num_words, 
-  output_sequence_length = max_length, 
-)
-
-
